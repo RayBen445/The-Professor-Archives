@@ -16,12 +16,15 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { sampleArticles, Article } from '@/lib/data';
+import { CONTACT_INFO } from '@/lib/constants';
+
+type TabType = 'overview' | 'articles' | 'settings';
 
 export default function AdminDashboard() {
   const [articles, setArticles] = useState<Article[]>(sampleArticles);
   const [isEditing, setIsEditing] = useState(false);
   const [currentArticle, setCurrentArticle] = useState<Partial<Article>>({});
-  const [activeTab, setActiveTab] = useState<'overview' | 'articles' | 'settings'>('overview');
+  const [activeTab, setActiveTab] = useState<TabType>('overview');
 
   const handleEdit = (article: Article) => {
     setCurrentArticle(article);
@@ -78,7 +81,7 @@ export default function AdminDashboard() {
               </Link>
             </div>
             <div className="flex items-center gap-4">
-              <span className="text-sm text-vintage-cream/80">Heritage Oladoye</span>
+              <span className="text-sm text-vintage-cream/80">{CONTACT_INFO.name}</span>
             </div>
           </div>
         </div>
@@ -88,13 +91,13 @@ export default function AdminDashboard() {
         {/* Navigation Tabs */}
         <div className="flex gap-4 mb-8 border-b border-vintage-charcoal/20">
           {[
-            { id: 'overview', label: 'Overview', icon: BarChart },
-            { id: 'articles', label: 'Articles', icon: FileText },
-            { id: 'settings', label: 'Settings', icon: Settings },
+            { id: 'overview' as TabType, label: 'Overview', icon: BarChart },
+            { id: 'articles' as TabType, label: 'Articles', icon: FileText },
+            { id: 'settings' as TabType, label: 'Settings', icon: Settings },
           ].map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
+              onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-2 px-4 py-3 font-medium transition-all ${
                 activeTab === tab.id
                   ? 'text-vintage-charcoal border-b-2 border-vintage-charcoal'
@@ -367,7 +370,7 @@ export default function AdminDashboard() {
                     </label>
                     <input
                       type="email"
-                      defaultValue="oladoyeheritage445@gmail.com"
+                      defaultValue={CONTACT_INFO.email}
                       className="w-full px-4 py-2 border border-vintage-charcoal/20 rounded focus:outline-none focus:ring-2 focus:ring-vintage-charcoal"
                     />
                   </div>
@@ -377,7 +380,7 @@ export default function AdminDashboard() {
                     </label>
                     <input
                       type="tel"
-                      defaultValue="+2348075614248"
+                      defaultValue={CONTACT_INFO.phoneDisplay}
                       className="w-full px-4 py-2 border border-vintage-charcoal/20 rounded focus:outline-none focus:ring-2 focus:ring-vintage-charcoal"
                     />
                   </div>

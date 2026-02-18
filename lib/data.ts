@@ -59,7 +59,7 @@ export const sampleArticles: Article[] = [
   },
   {
     id: '6',
-    title: 'Ethiopia and the League',
+    title: 'Ethiopia\'s Appeal to the League',
     excerpt: 'Ethiopia\'s plea to the League of Nations during the Italian invasion of 1935 - a pivotal moment in international diplomacy.',
     category: 'League of Nations',
     date: '2023-12-15',

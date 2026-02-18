@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { Github, Linkedin, Mail, Phone } from 'lucide-react';
+import { SITE_INFO, CONTACT_INFO } from '@/lib/constants';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -16,10 +17,9 @@ export default function Footer() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <h3 className="font-baby text-2xl font-bold mb-4">The Professor's Archives</h3>
+            <div className="font-baby text-2xl font-bold mb-4">{SITE_INFO.title}</div>
             <p className="text-vintage-cream/80 text-sm leading-relaxed">
-              Uncovering hidden history about WWI, WWII, The League of Nations, and African Independence. 
-              Global events through African perspectives.
+              {SITE_INFO.description}
             </p>
           </motion.div>
 
@@ -63,22 +63,22 @@ export default function Footer() {
             <h4 className="font-baby text-xl font-bold mb-4">Connect</h4>
             <div className="space-y-3 text-sm">
               <a 
-                href="mailto:oladoyeheritage445@gmail.com" 
+                href={`mailto:${CONTACT_INFO.email}`}
                 className="flex items-center gap-2 text-vintage-cream/80 hover:text-vintage-gold transition-colors"
               >
                 <Mail size={16} />
-                <span>oladoyeheritage445@gmail.com</span>
+                <span>{CONTACT_INFO.email}</span>
               </a>
               <a 
-                href="tel:+2348075614248" 
+                href={`tel:${CONTACT_INFO.phone}`}
                 className="flex items-center gap-2 text-vintage-cream/80 hover:text-vintage-gold transition-colors"
               >
                 <Phone size={16} />
-                <span>+234 807 561 4248</span>
+                <span>{CONTACT_INFO.phoneDisplay}</span>
               </a>
               <div className="flex gap-4 mt-4">
                 <motion.a
-                  href="https://github.com/RayBen445"
+                  href={CONTACT_INFO.github}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-vintage-cream/80 hover:text-vintage-gold transition-colors"
@@ -87,7 +87,7 @@ export default function Footer() {
                   <Github size={20} />
                 </motion.a>
                 <motion.a
-                  href="https://www.linkedin.com/in/heritage-oladoye"
+                  href={CONTACT_INFO.linkedin}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-vintage-cream/80 hover:text-vintage-gold transition-colors"
@@ -107,16 +107,16 @@ export default function Footer() {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.3 }}
         >
-          <p>© {currentYear} The Professor's Archives. All rights reserved.</p>
+          <p>© {currentYear} {SITE_INFO.title}. All rights reserved.</p>
           <p className="mt-2">
             Built by{' '}
             <a 
-              href="https://v0-heritageoladoye-coolshotsystems.vercel.app/" 
+              href={CONTACT_INFO.portfolio}
               target="_blank"
               rel="noopener noreferrer"
               className="text-vintage-gold hover:underline"
             >
-              Heritage Oladoye
+              {CONTACT_INFO.name}
             </a>
           </p>
         </motion.div>
