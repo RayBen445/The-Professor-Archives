@@ -1,0 +1,53 @@
+/* Google Fonts Import */
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-baby: 'Merriweather', serif; /* Placeholder for custom font */
+}
+
+body {
+  background-color: #F5F5DC;
+  color: #333333;
+  font-family: 'Crimson Text', serif;
+}
+
+.font-baby {
+  font-family: var(--font-baby);
+}
+
+/* Custom scrollbar for timeline */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Vintage paper texture effect */
+.vintage-paper {
+  background-color: #F4F1EA;
+  background-image: 
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,.02) 2px,
+      rgba(0,0,0,.02) 4px
+    );
+}
+
+/* Hover effects */
+.hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
