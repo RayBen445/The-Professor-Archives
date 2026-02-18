@@ -1,0 +1,256 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-parchment: #F5F0E8;
+    --color-cream: #FAF8F3;
+    --color-ink: #2C2C2C;
+    --color-ink-light: #555555;
+    --color-ink-muted: #8B8680;
+    --color-aged: #C4B59D;
+    --color-accent: #8B4513;
+    --color-gold: #C5A55A;
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-aged) var(--color-parchment);
+  }
+
+  *::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: var(--color-parchment);
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background-color: var(--color-aged);
+    border-radius: 20px;
+  }
+
+  ::selection {
+    background-color: var(--color-gold);
+    color: var(--color-ink);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-cream);
+    color: var(--color-ink);
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .text-pretty {
+    text-wrap: pretty;
+  }
+}
+
+/* Paper texture overlay */
+.paper-texture {
+  position: relative;
+}
+
+.paper-texture::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Decorative line */
+.ornamental-line {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.ornamental-line::before,
+.ornamental-line::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--color-aged), transparent);
+}
+
+/* Hover card lift effect */
+.card-hover {
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+    box-shadow 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.card-hover:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(44, 44, 44, 0.12),
+    0 8px 16px rgba(44, 44, 44, 0.08);
+}
+
+/* Image zoom on hover */
+.img-zoom {
+  overflow: hidden;
+}
+
+.img-zoom img {
+  transition: transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.img-zoom:hover img {
+  transform: scale(1.08);
+}
+
+/* Ink underline animation */
+.ink-underline {
+  position: relative;
+  display: inline-block;
+}
+
+.ink-underline::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: var(--color-accent);
+  transition: width 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.ink-underline:hover::after {
+  width: 100%;
+}
+
+/* Staggered animation delays */
+.stagger-1 { animation-delay: 0.1s; }
+.stagger-2 { animation-delay: 0.2s; }
+.stagger-3 { animation-delay: 0.3s; }
+.stagger-4 { animation-delay: 0.4s; }
+.stagger-5 { animation-delay: 0.5s; }
+.stagger-6 { animation-delay: 0.6s; }
+
+/* Loading skeleton */
+.skeleton {
+  background: linear-gradient(90deg, var(--color-parchment) 25%, var(--color-aged) 50%, var(--color-parchment) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Grain effect on images */
+.grain-overlay {
+  position: relative;
+}
+
+.grain-overlay::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.15'/%3E%3C/svg%3E");
+  pointer-events: none;
+  mix-blend-mode: multiply;
+}
+
+/* Fade-in scroll */
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Quill cursor */
+.quill-cursor {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%238B4513' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z'/%3E%3C/svg%3E") 12 12, auto;
+}
+
+/* Rich text editor styles */
+.prose-archive h1,
+.prose-archive h2,
+.prose-archive h3 {
+  font-family: var(--font-baby), Georgia, serif;
+  color: var(--color-ink);
+  margin-top: 2em;
+  margin-bottom: 0.5em;
+}
+
+.prose-archive p {
+  margin-bottom: 1.5em;
+  line-height: 1.8;
+  color: var(--color-ink-light);
+}
+
+.prose-archive blockquote {
+  border-left: 3px solid var(--color-accent);
+  padding-left: 1.5em;
+  font-style: italic;
+  color: var(--color-ink-muted);
+  margin: 2em 0;
+}
+
+/* Timeline connector */
+.timeline-dot {
+  position: relative;
+}
+
+.timeline-dot::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: -1.5rem;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  border: 2px solid var(--color-gold);
+  transform: translateY(-50%);
+}
+
+/* Admin sidebar transition */
+.sidebar-transition {
+  transition: width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    padding 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Tooltip */
+.tooltip-container {
+  position: relative;
+}
+
+.tooltip-container .tooltip-text {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  padding: 0.5rem 1rem;
+  background: var(--color-ink);
+  color: var(--color-cream);
+  border-radius: 6px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  transition: opacity 0.2s, transform 0.2s;
+  z-index: 50;
+}
+
+.tooltip-container:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+  transform: translateX(-50%) translateY(-4px);
+}
