@@ -1,18 +1,29 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight, Clock, User } from "lucide-react";
+import { ArrowUpRight, Clock, User, Bookmark, Share2 } from "lucide-react";
 import type { Article } from "@/lib/types";
 import { CATEGORY_IMAGES } from "@/lib/types";
 
 interface ArticleCardProps {
   article: Article;
   index: number;
+  onShare?: (article: Article) => void;
+  onBookmark?: (article: Article) => void;
+  isBookmarked?: boolean;
 }
 
-export default function ArticleCard({ article, index }: ArticleCardProps) {
+export default function ArticleCard({
+  article,
+  index,
+  onShare,
+  onBookmark,
+  isBookmarked = false,
+}: ArticleCardProps) {
+  const [hovered, setHovered] = useState(false);
   const imageUrl =
     article.image_url ||
     CATEGORY_IMAGES[article.category] ||
@@ -28,10 +39,12 @@ export default function ArticleCard({ article, index }: ArticleCardProps) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1, duration: 0.5 }}
       layout
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
     >
       <Link
         href={`/articles/${article.slug}`}
-        className="group block bg-cream border border-aged/20 rounded-2xl overflow-hidden card-hover"
+        className="group block bg-cream border border-aged/20 rounded-2xl overflow-hidden card-hover relative"
       >
         {/* Image */}
         <div className="relative aspect-[16/10] img-zoom grain-overlay">
@@ -50,6 +63,42 @@ export default function ArticleCard({ article, index }: ArticleCardProps) {
               {article.category}
             </span>
           </div>
+
+          {/* Action buttons on hover */}
+          <motion.div
+            initial={false}
+            animate={{ opacity: hovered ? 1 : 0, y: hovered ? 0 : 8 }}
+            className="absolute top-4 right-4 z-10 flex gap-2"
+          >
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onShare?.(article);
+              }}
+              className="p-2 bg-cream/90 backdrop-blur-sm rounded-full hover:bg-cream transition-colors"
+              aria-label="Share article"
+            >
+              <Share2 className="w-3.5 h-3.5 text-ink" />
+            </button>
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onBookmark?.(article);
+              }}
+              className="p-2 bg-cream/90 backdrop-blur-sm rounded-full hover:bg-cream transition-colors"
+              aria-label="Bookmark article"
+            >
+              <Bookmark
+                className={`w-3.5 h-3.5 ${
+                  isBookmarked
+                    ? "fill-accent text-accent"
+                    : "text-ink"
+                }`}
+              />
+            </button>
+          </motion.div>
 
           {/* Arrow on hover */}
           <div className="absolute bottom-4 right-4 z-10">

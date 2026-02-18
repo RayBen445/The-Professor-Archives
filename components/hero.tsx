@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { ChevronDown, BookOpen, Globe, Scroll } from "lucide-react";
 import AnimatedCounter from "./animated-counter";
+import DustParticles from "./dust-particles";
 import Image from "next/image";
 
 export default function Hero() {
@@ -20,6 +21,9 @@ export default function Hero() {
         <div className="absolute inset-0 bg-gradient-to-b from-cream/70 via-cream/50 to-cream" />
         <div className="absolute inset-0 bg-gradient-to-r from-cream/60 via-transparent to-cream/60" />
       </div>
+
+      {/* Floating dust particles */}
+      <DustParticles count={25} />
 
       {/* Floating decorative elements */}
       <motion.div

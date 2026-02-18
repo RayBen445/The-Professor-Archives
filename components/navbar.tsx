@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -12,6 +12,8 @@ import {
   Library,
   Info,
   Lock,
+  Search,
+  Bookmark,
 } from "lucide-react";
 
 const navLinks = [
@@ -21,7 +23,17 @@ const navLinks = [
   { href: "/about", label: "About", icon: Info },
 ];
 
-export default function Navbar() {
+interface NavbarProps {
+  onSearchOpen?: () => void;
+  onReadingListOpen?: () => void;
+  readingListCount?: number;
+}
+
+export default function Navbar({
+  onSearchOpen,
+  onReadingListOpen,
+  readingListCount = 0,
+}: NavbarProps) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -30,6 +42,21 @@ export default function Navbar() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const handleKeyboardShortcut = useCallback(
+    (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        onSearchOpen?.();
+      }
+    },
+    [onSearchOpen]
+  );
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyboardShortcut);
+    return () => window.removeEventListener("keydown", handleKeyboardShortcut);
+  }, [handleKeyboardShortcut]);
 
   return (
     <>
@@ -72,9 +99,45 @@ export default function Navbar() {
                 <span className="ink-underline">{link.label}</span>
               </Link>
             ))}
+
+            {/* Search Button */}
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={onSearchOpen}
+              className="ml-2 flex items-center gap-2 px-3 py-2 border border-aged/30 rounded-full text-xs text-ink-muted hover:text-accent hover:border-accent transition-all duration-300"
+              aria-label="Search"
+            >
+              <Search className="w-3.5 h-3.5" />
+              <span className="hidden lg:inline">Search</span>
+              <kbd className="hidden lg:inline px-1.5 py-0.5 bg-parchment border border-aged/20 rounded text-[9px] font-mono ml-1">
+                Ctrl+K
+              </kbd>
+            </motion.button>
+
+            {/* Reading List */}
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={onReadingListOpen}
+              className="relative ml-1 p-2.5 border border-aged/30 rounded-full text-ink-muted hover:text-accent hover:border-accent transition-all duration-300"
+              aria-label="Reading list"
+            >
+              <Bookmark className="w-3.5 h-3.5" />
+              {readingListCount > 0 && (
+                <motion.span
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="absolute -top-1 -right-1 w-4 h-4 bg-accent text-cream text-[9px] font-bold rounded-full flex items-center justify-center"
+                >
+                  {readingListCount}
+                </motion.span>
+              )}
+            </motion.button>
+
             <Link
               href="/admin"
-              className="ml-4 flex items-center gap-2 px-5 py-2.5 bg-ink text-cream text-sm font-semibold rounded-full hover:bg-accent transition-all duration-300 hover:shadow-lg hover:shadow-accent/20 hover:scale-105 active:scale-95"
+              className="ml-3 flex items-center gap-2 px-5 py-2.5 bg-ink text-cream text-sm font-semibold rounded-full hover:bg-accent transition-all duration-300 hover:shadow-lg hover:shadow-accent/20 hover:scale-105 active:scale-95"
             >
               <Lock className="w-3.5 h-3.5" />
               Admin
@@ -82,13 +145,38 @@ export default function Navbar() {
           </div>
 
           {/* Mobile toggle */}
-          <button
-            onClick={() => setMobileOpen(!mobileOpen)}
-            className="md:hidden p-2 text-ink hover:text-accent transition-colors"
-            aria-label="Toggle menu"
-          >
-            {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
+          <div className="flex items-center gap-2 md:hidden">
+            <button
+              onClick={onSearchOpen}
+              className="p-2 text-ink-muted hover:text-accent transition-colors"
+              aria-label="Search"
+            >
+              <Search className="w-5 h-5" />
+            </button>
+            <button
+              onClick={onReadingListOpen}
+              className="relative p-2 text-ink-muted hover:text-accent transition-colors"
+              aria-label="Reading list"
+            >
+              <Bookmark className="w-5 h-5" />
+              {readingListCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-accent text-cream text-[9px] font-bold rounded-full flex items-center justify-center">
+                  {readingListCount}
+                </span>
+              )}
+            </button>
+            <button
+              onClick={() => setMobileOpen(!mobileOpen)}
+              className="p-2 text-ink hover:text-accent transition-colors"
+              aria-label="Toggle menu"
+            >
+              {mobileOpen ? (
+                <X className="w-6 h-6" />
+              ) : (
+                <Menu className="w-6 h-6" />
+              )}
+            </button>
+          </div>
         </div>
       </motion.nav>
 

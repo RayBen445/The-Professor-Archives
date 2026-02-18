@@ -60,6 +60,18 @@ const config: Config = {
           "0%, 100%": { opacity: "1" },
           "50%": { opacity: "0.5" },
         },
+        "spin-slow": {
+          "0%": { transform: "rotate(0deg)" },
+          "100%": { transform: "rotate(360deg)" },
+        },
+        "bounce-subtle": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-5px)" },
+        },
+        wiggle: {
+          "0%, 100%": { transform: "rotate(-3deg)" },
+          "50%": { transform: "rotate(3deg)" },
+        },
       },
       animation: {
         "fade-in-up": "fade-in-up 0.7s ease-out forwards",
@@ -70,6 +82,9 @@ const config: Config = {
         float: "float 3s ease-in-out infinite",
         "ink-spread": "ink-spread 0.8s ease-out forwards",
         pulse: "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        "spin-slow": "spin-slow 8s linear infinite",
+        "bounce-subtle": "bounce-subtle 2s ease-in-out infinite",
+        wiggle: "wiggle 1s ease-in-out infinite",
       },
     },
   },

@@ -9,11 +9,17 @@ import { FileText } from "lucide-react";
 interface ArticleGridProps {
   articles: Article[];
   activeCategory: string;
+  onShare?: (article: Article) => void;
+  onBookmark?: (article: Article) => void;
+  bookmarkedSlugs?: string[];
 }
 
 export default function ArticleGrid({
   articles,
   activeCategory,
+  onShare,
+  onBookmark,
+  bookmarkedSlugs = [],
 }: ArticleGridProps) {
   return (
     <section id="articles" className="py-24 px-6">
@@ -41,7 +47,14 @@ export default function ArticleGrid({
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
             >
               {articles.map((article, i) => (
-                <ArticleCard key={article.id} article={article} index={i} />
+                <ArticleCard
+                  key={article.id}
+                  article={article}
+                  index={i}
+                  onShare={onShare}
+                  onBookmark={onBookmark}
+                  isBookmarked={bookmarkedSlugs.includes(article.slug)}
+                />
               ))}
             </motion.div>
           ) : (

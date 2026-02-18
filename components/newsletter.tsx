@@ -2,12 +2,13 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, Check, Mail } from "lucide-react";
+import { Send, Check, Mail, Sparkles } from "lucide-react";
 import ScrollReveal from "./scroll-reveal";
 
 export default function Newsletter() {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [focused, setFocused] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,11 +32,17 @@ export default function Newsletter() {
         />
       </div>
 
+      <div className="absolute top-0 left-1/3 w-72 h-72 bg-gold/10 rounded-full blur-3xl" />
+      <div className="absolute bottom-0 right-1/3 w-72 h-72 bg-accent/10 rounded-full blur-3xl" />
+
       <div className="max-w-2xl mx-auto text-center relative z-10">
         <ScrollReveal>
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-accent/10 mb-6">
+          <motion.div
+            whileHover={{ scale: 1.02 }}
+            className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-accent/10 mb-6"
+          >
             <Mail className="w-7 h-7 text-accent" />
-          </div>
+          </motion.div>
           <h2 className="font-baby text-3xl md:text-4xl font-bold text-ink mb-4 text-balance">
             Stay Informed
           </h2>
@@ -48,14 +55,16 @@ export default function Newsletter() {
             onSubmit={handleSubmit}
             className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto"
           >
-            <div className="relative flex-1">
+            <div className={`relative flex-1 rounded-full transition-all duration-300 ${focused ? "glow-border" : ""}`}>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                onFocus={() => setFocused(true)}
+                onBlur={() => setFocused(false)}
                 placeholder="your@email.com"
                 required
-                className="w-full px-5 py-3.5 bg-cream border border-aged/30 rounded-full text-ink placeholder:text-ink-muted focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all duration-300"
+                className="w-full px-5 py-3.5 bg-cream border border-aged/30 rounded-full text-ink placeholder:text-ink-muted focus:outline-none focus:border-accent transition-all duration-300"
               />
             </div>
             <AnimatePresence mode="wait">
@@ -68,6 +77,7 @@ export default function Newsletter() {
                 >
                   <Check className="w-4 h-4" />
                   Subscribed
+                  <Sparkles className="w-4 h-4" />
                 </motion.div>
               ) : (
                 <motion.button
@@ -85,6 +95,10 @@ export default function Newsletter() {
               )}
             </AnimatePresence>
           </form>
+
+          <p className="text-xs text-ink-muted mt-4">
+            Join 1,200+ history enthusiasts. Unsubscribe anytime.
+          </p>
         </ScrollReveal>
       </div>
     </section>

@@ -33,7 +33,7 @@ export default function FeaturedStory({ article }: FeaturedStoryProps) {
 
         <ScrollReveal delay={0.2}>
           <Link href={`/articles/${article.slug}`} className="group block">
-            <div className="relative grid md:grid-cols-2 gap-0 bg-parchment rounded-2xl overflow-hidden card-hover border border-aged/30">
+            <div className="relative grid md:grid-cols-2 gap-0 bg-parchment rounded-2xl overflow-hidden card-hover hover-glow border border-aged/30">
               {/* Image */}
               <div className="relative aspect-[4/3] md:aspect-auto img-zoom grain-overlay">
                 <Image
