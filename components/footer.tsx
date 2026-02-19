@@ -17,14 +17,21 @@ const footerLinks = {
   Explore: [
     { label: "All Stories", href: "/#articles" },
     { label: "Timeline", href: "/#timeline" },
-    { label: "World War I", href: "/?category=WWI" },
-    { label: "World War II", href: "/?category=WWII" },
+    { label: "Document Archive", href: "/#documents" },
+    { label: "Discussions", href: "/#discussions" },
   ],
   Topics: [
-    { label: "League of Nations", href: "/?category=League+of+Nations" },
+    { label: "World War I", href: "/?category=WWI" },
+    { label: "World War II", href: "/?category=WWII" },
     { label: "Independence", href: "/?category=Independence" },
-    { label: "The Commonwealth", href: "/?category=The+Commonwealth" },
+    { label: "Nigeria", href: "/?category=Nigeria" },
+    { label: "Grammy History", href: "/?category=Grammy" },
+    { label: "Guinness Records", href: "/?category=Guinness+Records" },
+  ],
+  More: [
     { label: "About", href: "/about" },
+    { label: "Contact", href: "/#contact" },
+    { label: "Admin", href: "/admin" },
   ],
 };
 
@@ -61,7 +68,7 @@ export default function Footer() {
       <div className="absolute top-0 right-[20%] w-64 h-64 bg-accent/5 rounded-full blur-3xl" />
 
       <div className="max-w-7xl mx-auto relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-12 mb-16">
           {/* Brand */}
           <div className="md:col-span-2">
             <Link href="/" className="flex items-center gap-3 mb-6 group">

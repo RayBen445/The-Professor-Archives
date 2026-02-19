@@ -6,7 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight, Clock, User, Bookmark, Share2, MapPin, Calendar } from "lucide-react";
 import type { Article } from "@/lib/types";
-import { CATEGORY_IMAGES, formatFullDate, getReadTime } from "@/lib/types";
+import { CATEGORY_IMAGES, formatFullDate, getReadTime, parseTags } from "@/lib/types";
 
 interface ArticleCardProps {
   article: Article;
@@ -132,9 +132,9 @@ export default function ArticleCard({
           {/* Tags */}
           {article.tags && (
             <div className="mt-3 flex flex-wrap gap-1">
-              {article.tags.split(",").slice(0, 3).map((tag) => (
+              {parseTags(article.tags).slice(0, 3).map((tag) => (
                 <span key={tag} className="px-2 py-0.5 bg-parchment text-ink-muted text-[9px] font-semibold rounded-full">
-                  {tag.trim()}
+                  {tag}
                 </span>
               ))}
             </div>

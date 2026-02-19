@@ -21,7 +21,7 @@ import PrintButton from "@/components/print-button";
 import FontSizeToggle from "@/components/font-size-toggle";
 import RelatedSidebar from "@/components/related-sidebar";
 import type { Article } from "@/lib/types";
-import { CATEGORY_IMAGES, formatFullDate, getReadTime } from "@/lib/types";
+import { CATEGORY_IMAGES, formatFullDate, getReadTime, parseTags } from "@/lib/types";
 
 interface Props {
   article: Article;
@@ -41,6 +41,7 @@ export default function ArticleDetailClient({ article, relatedArticles }: Props)
   const readTime = getReadTime(article.content, article.read_time);
   const publishDate = formatFullDate(article.published_date || article.created_at);
   const articleUrl = typeof window !== "undefined" ? window.location.href : "";
+  const articleTags = parseTags(article.tags);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -88,7 +89,6 @@ export default function ArticleDetailClient({ article, relatedArticles }: Props)
           <div className="relative h-[50vh] md:h-[60vh]">
             <Image src={imageUrl} alt={article.title} fill className="object-cover" priority />
             <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/60 to-ink/20" />
-
             <div className="absolute inset-0 flex items-end">
               <div className="max-w-4xl mx-auto px-6 pb-12 w-full">
                 <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
@@ -97,29 +97,20 @@ export default function ArticleDetailClient({ article, relatedArticles }: Props)
                     { label: article.category, href: `/?category=${article.category}` },
                     { label: article.title },
                   ]} />
-
                   <div className="flex flex-wrap items-center gap-2 mt-4 mb-4">
-                    <span className="inline-block px-4 py-1.5 bg-accent text-cream text-xs font-bold uppercase tracking-wider rounded-full">
-                      {article.category}
-                    </span>
+                    <span className="inline-block px-4 py-1.5 bg-accent text-cream text-xs font-bold uppercase tracking-wider rounded-full">{article.category}</span>
                     {article.country && (
                       <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-cream/10 backdrop-blur-sm text-cream text-xs font-semibold rounded-full">
-                        <MapPin className="w-3 h-3" />
-                        {article.country}
+                        <MapPin className="w-3 h-3" />{article.country}
                       </span>
                     )}
                     {article.region && (
                       <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-cream/10 backdrop-blur-sm text-cream text-xs font-semibold rounded-full">
-                        <Globe2 className="w-3 h-3" />
-                        {article.region}
+                        <Globe2 className="w-3 h-3" />{article.region}
                       </span>
                     )}
                   </div>
-
-                  <h1 className="font-baby text-3xl sm:text-4xl md:text-5xl font-bold text-cream leading-tight mb-4 text-balance">
-                    {article.title}
-                  </h1>
-
+                  <h1 className="font-baby text-3xl sm:text-4xl md:text-5xl font-bold text-cream leading-tight mb-4 text-balance">{article.title}</h1>
                   <div className="flex flex-wrap items-center gap-4 text-aged text-sm">
                     <span className="flex items-center gap-1.5"><User className="w-4 h-4" />{article.author}</span>
                     <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4" />{publishDate}</span>
@@ -136,7 +127,6 @@ export default function ArticleDetailClient({ article, relatedArticles }: Props)
           <div className="max-w-6xl mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-12">
               <div>
-                {/* Controls */}
                 <div className="flex items-center justify-between mb-12 flex-wrap gap-3">
                   <Link href="/" className="flex items-center gap-2 text-ink-muted hover:text-accent transition-colors group">
                     <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
@@ -152,46 +142,32 @@ export default function ArticleDetailClient({ article, relatedArticles }: Props)
                     <FontSizeToggle onSizeChange={setFontSize} />
                     <PrintButton />
                     <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={toggleSpeech}
-                      className={`flex items-center gap-1.5 px-3 py-2 border rounded-full text-xs font-semibold transition-all duration-300 ${speaking ? "border-accent bg-accent/10 text-accent" : "border-aged/30 text-ink-light hover:text-accent hover:border-accent"}`}
-                    >
+                      className={`flex items-center gap-1.5 px-3 py-2 border rounded-full text-xs font-semibold transition-all duration-300 ${speaking ? "border-accent bg-accent/10 text-accent" : "border-aged/30 text-ink-light hover:text-accent hover:border-accent"}`}>
                       {speaking ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
                       <span className="hidden sm:inline">{speaking ? "Stop" : "Listen"}</span>
                     </motion.button>
                     <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setBookmarked(!bookmarked)}
-                      className={`p-2 border rounded-full transition-all duration-300 ${bookmarked ? "border-accent bg-accent/10 text-accent" : "border-aged/30 text-ink-light hover:text-accent hover:border-accent"}`}
-                    >
+                      className={`p-2 border rounded-full transition-all duration-300 ${bookmarked ? "border-accent bg-accent/10 text-accent" : "border-aged/30 text-ink-light hover:text-accent hover:border-accent"}`}>
                       <Bookmark className={`w-4 h-4 ${bookmarked ? "fill-accent" : ""}`} />
                     </motion.button>
                     <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setShareOpen(true)}
-                      className="flex items-center gap-1.5 px-3 py-2 border border-aged/30 rounded-full text-xs font-semibold text-ink-light hover:text-accent hover:border-accent transition-all duration-300"
-                    >
-                      <Share2 className="w-3.5 h-3.5" />
-                      <span className="hidden sm:inline">Share</span>
+                      className="flex items-center gap-1.5 px-3 py-2 border border-aged/30 rounded-full text-xs font-semibold text-ink-light hover:text-accent hover:border-accent transition-all duration-300">
+                      <Share2 className="w-3.5 h-3.5" /><span className="hidden sm:inline">Share</span>
                     </motion.button>
                   </div>
                 </div>
 
-                {/* Excerpt */}
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="mb-12 relative group">
                   <p className="text-xl text-ink-light leading-relaxed italic border-l-4 border-accent pl-6">{article.excerpt}</p>
                   <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={copyQuote}
-                    className="absolute top-0 right-0 p-2 bg-parchment border border-aged/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                  >
+                    className="absolute top-0 right-0 p-2 bg-parchment border border-aged/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     {copiedQuote ? <Check className="w-4 h-4 text-green-700" /> : <Copy className="w-4 h-4 text-ink-muted" />}
                   </motion.button>
                 </motion.div>
 
-                {/* Article body */}
-                <motion.div
-                  ref={contentRef}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 }}
-                  className={`prose-archive ${fontSize}`}
-                  dangerouslySetInnerHTML={{ __html: article.content }}
-                />
+                <motion.div ref={contentRef} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
+                  className={`prose-archive ${fontSize}`} dangerouslySetInnerHTML={{ __html: article.content }} />
 
-                {/* Tags */}
                 <div className="mt-16 pt-8 border-t border-aged/20">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="text-xs font-semibold text-ink-muted uppercase tracking-wider mr-2 flex items-center gap-1">
@@ -200,26 +176,21 @@ export default function ArticleDetailClient({ article, relatedArticles }: Props)
                     <span className="px-3 py-1 bg-parchment border border-aged/20 text-ink-light text-xs font-semibold rounded-full">{article.category}</span>
                     {article.country && <span className="px-3 py-1 bg-parchment border border-aged/20 text-ink-light text-xs font-semibold rounded-full">{article.country}</span>}
                     {article.region && <span className="px-3 py-1 bg-parchment border border-aged/20 text-ink-light text-xs font-semibold rounded-full">{article.region}</span>}
-                    {article.tags && article.tags.split(",").map((tag) => (
-                      <span key={tag} className="px-3 py-1 bg-parchment border border-aged/20 text-ink-light text-xs font-semibold rounded-full">{tag.trim()}</span>
+                    {articleTags.map((tag) => (
+                      <span key={tag} className="px-3 py-1 bg-parchment border border-aged/20 text-ink-light text-xs font-semibold rounded-full">{tag}</span>
                     ))}
                   </div>
                 </div>
 
-                {/* Share CTA */}
                 <div className="mt-12 p-8 bg-parchment border border-aged/20 rounded-2xl text-center">
                   <h3 className="font-baby text-xl font-bold text-ink mb-2">Enjoyed this story?</h3>
                   <p className="text-sm text-ink-light mb-6">Share it with someone who loves history.</p>
                   <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setShareOpen(true)}
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-ink text-cream font-semibold rounded-full hover:bg-accent transition-all duration-300 hover:shadow-lg hover:shadow-accent/20"
-                  >
-                    <Share2 className="w-4 h-4" />
-                    Share This Article
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-ink text-cream font-semibold rounded-full hover:bg-accent transition-all duration-300 hover:shadow-lg hover:shadow-accent/20">
+                    <Share2 className="w-4 h-4" /> Share This Article
                   </motion.button>
                 </div>
               </div>
-
-              {/* Sidebar */}
               <div className="hidden lg:block">
                 <div className="sticky top-28">
                   <RelatedSidebar articles={relatedArticles} currentSlug={article.slug} />
@@ -229,7 +200,6 @@ export default function ArticleDetailClient({ article, relatedArticles }: Props)
           </div>
         </section>
 
-        {/* Related */}
         {relatedArticles.length > 0 && (
           <section className="py-20 px-6 bg-parchment">
             <div className="max-w-7xl mx-auto">

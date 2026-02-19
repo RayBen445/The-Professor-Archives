@@ -28,8 +28,13 @@ import WorldMapExplorer from "@/components/world-map-explorer";
 import ArticleCountBadge from "@/components/article-count-badge";
 import RegionFilter from "@/components/region-filter";
 import TagCloud from "@/components/tag-cloud";
+import ContactForm from "@/components/contact-form";
+import DocumentArchive from "@/components/document-archive";
+import ColonialMapViewer from "@/components/colonial-map-viewer";
+import DiscussionForum from "@/components/discussion-forum";
+import LanguageSwitcher from "@/components/language-switcher";
 import type { Article, TimelineEvent, Category } from "@/lib/types";
-import { CATEGORIES } from "@/lib/types";
+import { CATEGORIES, parseTags } from "@/lib/types";
 
 interface HomeClientProps {
   articles: Article[];
@@ -69,9 +74,7 @@ export default function HomeClient({
   const allTags = useMemo(() => {
     const tags: string[] = [];
     articles.forEach((a) => {
-      if (a.tags) {
-        a.tags.split(",").forEach((t) => tags.push(t.trim()));
-      }
+      parseTags(a.tags).forEach((t) => tags.push(t));
     });
     return tags;
   }, [articles]);
@@ -152,14 +155,19 @@ export default function HomeClient({
         />
 
         <DidYouKnow />
-        <WorldMapExplorer />
+        <ColonialMapViewer />
         <CategoryShowcase />
         <TagCloud tags={allTags} />
+        <WorldMapExplorer />
+        <DocumentArchive />
         <QuoteSection />
         <Timeline events={timelineEvents} />
         <RandomArticle articles={articles} />
+        <DiscussionForum />
         <Testimonials />
+        <ContactForm />
         <Newsletter />
+        <LanguageSwitcher />
         <Footer />
         <BackToTop />
 

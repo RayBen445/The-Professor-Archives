@@ -104,6 +104,13 @@ export const REGIONS = [
 
 export type Region = typeof REGIONS[number];
 
+export function parseTags(tags: string | string[] | null | undefined): string[] {
+  if (!tags) return [];
+  if (Array.isArray(tags)) return tags.map((t) => String(t).trim()).filter(Boolean);
+  if (typeof tags === "string") return tags.split(",").map((t) => t.trim()).filter(Boolean);
+  return [];
+}
+
 export function formatFullDate(dateStr: string | null): string {
   if (!dateStr) return "Unknown date";
   const date = new Date(dateStr);
