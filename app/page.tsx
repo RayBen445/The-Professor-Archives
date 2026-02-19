@@ -1,24 +1,55 @@
 'use client';
 
 import { useState, useMemo, useCallback } from 'react';
+import PageTransition from '@/components/page-transition';
+import ReadingProgress from '@/components/reading-progress';
+import TrendingBar from '@/components/trending-bar';
 import Navbar from '@/components/navbar';
 import Hero from '@/components/Hero';
+import ArticleCountBadge from '@/components/article-count-badge';
+import ScrollReveal from '@/components/scroll-reveal';
 import TopicFilters from '@/components/TopicFilters';
-import FeaturedStory from '@/components/FeaturedStory';
-import Timeline from '@/components/Timeline';
+import RegionFilter from '@/components/region-filter';
+import FeaturedCarousel from '@/components/featured-carousel';
+import ThisDayInHistory from '@/components/this-day-in-history';
+import StatsBanner from '@/components/stats-banner';
 import ArticleGrid from '@/components/ArticleGrid';
+import DidYouKnow from '@/components/did-you-know';
+import ColonialMapViewer from '@/components/colonial-map-viewer';
+import CategoryShowcase from '@/components/category-showcase';
+import TagCloud from '@/components/tag-cloud';
+import WorldMapExplorer from '@/components/world-map-explorer';
+import DocumentArchive from '@/components/document-archive';
+import QuoteSection from '@/components/quote-section';
+import Timeline from '@/components/Timeline';
+import RandomArticle from '@/components/random-article';
+import DiscussionForum from '@/components/discussion-forum';
+import Testimonials from '@/components/testimonials';
+import ContactForm from '@/components/contact-form';
+import Newsletter from '@/components/newsletter';
+import LanguageSwitcher from '@/components/language-switcher';
 import Footer from '@/components/Footer';
 import BackToTop from '@/components/back-to-top';
-import ReadingProgress from '@/components/reading-progress';
+import SearchModal from '@/components/search-modal';
 import ShareModal from '@/components/share-modal';
+import ReadingListDrawer from '@/components/reading-list-drawer';
 import { sampleArticles, timelineEvents } from '@/lib/data';
-import { CATEGORIES, type Category } from '@/lib/types';
+import { CATEGORIES, type Category, parseTags } from '@/lib/types';
 import type { Article as TypesArticle, TimelineEvent as TypesTimelineEvent } from '@/lib/types';
+
+interface ReadingListItem {
+  slug: string;
+  title: string;
+  category: string;
+}
 
 export default function Home() {
   const [activeFilter, setActiveFilter] = useState<Category>('All');
+  const [activeRegion, setActiveRegion] = useState('all');
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [readingListOpen, setReadingListOpen] = useState(false);
+  const [readingList, setReadingList] = useState<ReadingListItem[]>([]);
   const [shareArticle, setShareArticle] = useState<TypesArticle | null>(null);
-  const [bookmarkedSlugs, setBookmarkedSlugs] = useState<string[]>([]);
 
   // Convert sample articles to match the Article type from types.ts
   const convertedArticles: TypesArticle[] = sampleArticles.map(article => ({
@@ -60,25 +91,35 @@ export default function Home() {
     };
   });
 
-  // Get featured article
-  const featuredArticle = convertedArticles.find(article => article.is_featured) || convertedArticles[0];
-
-  // Filter articles for the grid (exclude featured)
+  // Filter articles for the grid
   const filteredArticles = useMemo(() => {
-    const nonFeatured = convertedArticles.filter(article => !article.is_featured);
-    if (activeFilter === 'All') {
-      return nonFeatured;
+    let result = convertedArticles;
+    if (activeFilter !== 'All') {
+      result = result.filter((a) => a.category === activeFilter);
     }
-    return nonFeatured.filter(article => article.category === activeFilter);
-  }, [activeFilter]);
+    if (activeRegion !== 'all') {
+      result = result.filter((a) => a.region === activeRegion || a.country === activeRegion);
+    }
+    return result;
+  }, [activeFilter, activeRegion]);
+
+  // Get all tags
+  const allTags = useMemo(() => {
+    const tags: string[] = [];
+    convertedArticles.forEach((a) => {
+      parseTags(a.tags).forEach((t) => tags.push(t));
+    });
+    return tags;
+  }, []);
 
   // Bookmark handler
   const handleBookmark = useCallback((article: TypesArticle) => {
-    setBookmarkedSlugs(prev => {
-      if (prev.includes(article.slug)) {
-        return prev.filter(slug => slug !== article.slug);
+    setReadingList((prev) => {
+      const exists = prev.find((item) => item.slug === article.slug);
+      if (exists) {
+        return prev.filter((item) => item.slug !== article.slug);
       }
-      return [...prev, article.slug];
+      return [...prev, { slug: article.slug, title: article.title, category: article.category }];
     });
   }, []);
 
@@ -87,38 +128,107 @@ export default function Home() {
     setShareArticle(article);
   }, []);
 
+  // Remove from reading list
+  const removeFromReadingList = useCallback((slug: string) => {
+    setReadingList((prev) => prev.filter((item) => item.slug !== slug));
+  }, []);
+
   return (
-    <>
-      <Navbar />
-      <ReadingProgress />
-      <main className="min-h-screen">
-        <Hero />
-        <TopicFilters 
-          activeCategory={activeFilter}
-          onCategoryChange={setActiveFilter}
-          categories={CATEGORIES}
+    <PageTransition>
+      <main className="min-h-screen bg-cream">
+        <ReadingProgress />
+        <TrendingBar articles={convertedArticles} />
+        <Navbar
+          onSearchOpen={() => setSearchOpen(true)}
+          onReadingListOpen={() => setReadingListOpen(true)}
+          readingListCount={readingList.length}
         />
-        <FeaturedStory article={featuredArticle} />
-        <Timeline events={convertedEvents} />
-        <ArticleGrid 
+        <Hero />
+
+        {/* Stats */}
+        <section className="py-8 px-6">
+          <div className="max-w-7xl mx-auto">
+            <ScrollReveal>
+              <ArticleCountBadge articles={convertedArticles} />
+            </ScrollReveal>
+          </div>
+        </section>
+
+        {/* Filter section */}
+        <section className="py-10 px-6 bg-parchment/50 border-y border-aged/10">
+          <div className="max-w-7xl mx-auto space-y-6">
+            <ScrollReveal>
+              <div className="text-center mb-4">
+                <span className="text-ink-muted text-xs uppercase tracking-[0.25em] font-semibold">
+                  Explore by Topic
+                </span>
+              </div>
+              <TopicFilters
+                activeCategory={activeFilter}
+                onCategoryChange={(cat) => { setActiveFilter(cat); setActiveRegion('all'); }}
+                categories={CATEGORIES}
+              />
+            </ScrollReveal>
+            <ScrollReveal delay={0.1}>
+              <div className="text-center mt-4 mb-2">
+                <span className="text-ink-muted text-[10px] uppercase tracking-[0.25em] font-semibold">
+                  or by Region
+                </span>
+              </div>
+              <RegionFilter activeRegion={activeRegion} onRegionChange={setActiveRegion} />
+            </ScrollReveal>
+          </div>
+        </section>
+
+        <FeaturedCarousel articles={convertedArticles} />
+        <ThisDayInHistory />
+        <StatsBanner />
+
+        <ArticleGrid
           articles={filteredArticles}
           activeCategory={activeFilter}
           onShare={handleShare}
           onBookmark={handleBookmark}
-          bookmarkedSlugs={bookmarkedSlugs}
+          bookmarkedSlugs={readingList.map((item) => item.slug)}
         />
+
+        <DidYouKnow />
+        <ColonialMapViewer />
+        <CategoryShowcase />
+        <TagCloud tags={allTags} />
+        <WorldMapExplorer />
+        <DocumentArchive />
+        <QuoteSection />
+        <Timeline events={convertedEvents} />
+        <RandomArticle articles={convertedArticles} />
+        <DiscussionForum />
+        <Testimonials />
+        <ContactForm />
+        <Newsletter />
+        <LanguageSwitcher />
         <Footer />
-      </main>
-      <BackToTop />
-      {shareArticle && (
-        <ShareModal
-          isOpen={true}
-          onClose={() => setShareArticle(null)}
-          title={shareArticle.title}
-          url={`/articles/${shareArticle.slug}`}
-          excerpt={shareArticle.excerpt}
+        <BackToTop />
+
+        {/* Modals & Drawers */}
+        <SearchModal
+          isOpen={searchOpen}
+          onClose={() => setSearchOpen(false)}
+          articles={convertedArticles}
         />
-      )}
-    </>
+        <ShareModal
+          isOpen={!!shareArticle}
+          onClose={() => setShareArticle(null)}
+          title={shareArticle?.title || ''}
+          url={typeof window !== 'undefined' ? `${window.location.origin}/articles/${shareArticle?.slug || ''}` : ''}
+          excerpt={shareArticle?.excerpt}
+        />
+        <ReadingListDrawer
+          isOpen={readingListOpen}
+          onClose={() => setReadingListOpen(false)}
+          items={readingList}
+          onRemove={removeFromReadingList}
+        />
+      </main>
+    </PageTransition>
   );
 }
