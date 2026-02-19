@@ -1,34 +1,37 @@
-import { getDb } from "@/lib/db";
-import type { Article, TimelineEvent } from "@/lib/types";
-import HomeClient from "./home-client";
+'use client';
 
-export default async function HomePage() {
-  const sql = getDb();
+import { useState, useMemo } from 'react';
+import Hero from '@/components/Hero';
+import TopicFilters from '@/components/TopicFilters';
+import FeaturedStory from '@/components/FeaturedStory';
+import Timeline from '@/components/Timeline';
+import ArticleGrid from '@/components/ArticleGrid';
+import Footer from '@/components/Footer';
+import { sampleArticles, timelineEvents } from '@/lib/data';
 
-  let articles: Article[] = [];
-  let featured: Article | null = null;
-  let timelineEvents: TimelineEvent[] = [];
+export default function Home() {
+  const [activeFilter, setActiveFilter] = useState('all');
 
-  try {
-    const articlesResult = await sql`
-      SELECT * FROM articles WHERE published = true ORDER BY created_at DESC
-    `;
-    articles = articlesResult as unknown as Article[];
-    featured = articles.find((a) => a.is_featured) || articles[0] || null;
+  // Get featured article
+  const featuredArticle = sampleArticles.find(article => article.featured) || sampleArticles[0];
 
-    const timelineResult = await sql`
-      SELECT * FROM timeline_events ORDER BY sort_order ASC
-    `;
-    timelineEvents = timelineResult as unknown as TimelineEvent[];
-  } catch (error) {
-    console.error("Error loading homepage data:", error);
-  }
+  // Filter articles for the grid (exclude featured)
+  const filteredArticles = useMemo(() => {
+    const nonFeatured = sampleArticles.filter(article => !article.featured);
+    if (activeFilter === 'all') {
+      return nonFeatured;
+    }
+    return nonFeatured.filter(article => article.category === activeFilter);
+  }, [activeFilter]);
 
   return (
-    <HomeClient
-      articles={articles}
-      featured={featured}
-      timelineEvents={timelineEvents}
-    />
+    <main className="min-h-screen">
+      <Hero />
+      <TopicFilters onFilterChange={setActiveFilter} />
+      <FeaturedStory article={featuredArticle} />
+      <Timeline events={timelineEvents} />
+      <ArticleGrid articles={filteredArticles} />
+      <Footer />
+    </main>
   );
 }

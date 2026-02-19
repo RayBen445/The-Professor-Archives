@@ -1,371 +1,399 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import Link from "next/link";
-import {
-  Plus,
-  Pencil,
-  Trash2,
-  Eye,
-  EyeOff,
-  Star,
-  StarOff,
-  Search,
-  Filter,
-  LayoutDashboard,
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { 
+  Plus, 
+  Edit, 
+  Trash2, 
+  Save, 
+  X, 
   FileText,
-  Home,
-  Feather,
-  ChevronRight,
-  BarChart3,
-  BookOpen,
-  Clock,
-  AlertCircle,
-} from "lucide-react";
-import useSWR, { mutate } from "swr";
-import type { Article, Category } from "@/lib/types";
+  BarChart,
+  Users,
+  Settings,
+  Home
+} from 'lucide-react';
+import Link from 'next/link';
+import { sampleArticles, Article } from '@/lib/data';
+import { CONTACT_INFO } from '@/lib/constants';
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json());
+type TabType = 'overview' | 'articles' | 'settings';
 
 export default function AdminDashboard() {
-  const { data: articles, isLoading } = useSWR<Article[]>(
-    "/api/articles",
-    fetcher
-  );
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filterCategory, setFilterCategory] = useState<string>("All");
-  const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
+  const [articles, setArticles] = useState<Article[]>(sampleArticles);
+  const [isEditing, setIsEditing] = useState(false);
+  const [currentArticle, setCurrentArticle] = useState<Partial<Article>>({});
+  const [activeTab, setActiveTab] = useState<TabType>('overview');
 
-  const filteredArticles = articles?.filter((a) => {
-    const matchesSearch =
-      a.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      a.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory =
-      filterCategory === "All" || a.category === filterCategory;
-    return matchesSearch && matchesCategory;
-  });
-
-  const stats = {
-    total: articles?.length || 0,
-    published: articles?.filter((a) => a.published).length || 0,
-    drafts: articles?.filter((a) => !a.published).length || 0,
-    featured: articles?.filter((a) => a.is_featured).length || 0,
+  const handleEdit = (article: Article) => {
+    setCurrentArticle(article);
+    setIsEditing(true);
   };
 
-  const handleDelete = useCallback(async (id: number) => {
-    try {
-      await fetch(`/api/articles/${id}`, { method: "DELETE" });
-      mutate("/api/articles");
-      setDeleteConfirm(null);
-    } catch (error) {
-      console.error("Error deleting:", error);
+  const handleDelete = (id: string) => {
+    if (confirm('Are you sure you want to delete this article?')) {
+      setArticles(articles.filter(a => a.id !== id));
     }
-  }, []);
+  };
 
-  const handleTogglePublish = useCallback(
-    async (article: Article) => {
-      try {
-        await fetch(`/api/articles/${article.id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...article, published: !article.published }),
-        });
-        mutate("/api/articles");
-      } catch (error) {
-        console.error("Error toggling publish:", error);
-      }
-    },
-    []
-  );
+  const handleSave = () => {
+    if (currentArticle.id) {
+      // Update existing article
+      setArticles(articles.map(a => 
+        a.id === currentArticle.id ? currentArticle as Article : a
+      ));
+    } else {
+      // Create new article
+      const newArticle = {
+        ...currentArticle,
+        id: Date.now().toString(),
+        date: new Date().toISOString().split('T')[0],
+      } as Article;
+      setArticles([newArticle, ...articles]);
+    }
+    setIsEditing(false);
+    setCurrentArticle({});
+  };
 
-  const handleToggleFeatured = useCallback(
-    async (article: Article) => {
-      try {
-        await fetch(`/api/articles/${article.id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            ...article,
-            is_featured: !article.is_featured,
-          }),
-        });
-        mutate("/api/articles");
-      } catch (error) {
-        console.error("Error toggling featured:", error);
-      }
-    },
-    []
-  );
+  const handleCancel = () => {
+    setIsEditing(false);
+    setCurrentArticle({});
+  };
+
+  const stats = [
+    { label: 'Total Articles', value: articles.length, icon: FileText, color: 'bg-blue-500' },
+    { label: 'Published', value: articles.length, icon: BarChart, color: 'bg-green-500' },
+    { label: 'Categories', value: 5, icon: Users, color: 'bg-purple-500' },
+  ];
 
   return (
-    <div className="min-h-screen bg-parchment">
-      {/* Admin Header */}
-      <header className="bg-ink text-cream sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link href="/" className="flex items-center gap-2 group">
-              <Feather className="w-6 h-6 text-gold" />
-              <span className="font-baby text-lg font-bold hidden sm:block">
-                {"The Professor's Archives"}
-              </span>
-            </Link>
-            <ChevronRight className="w-4 h-4 text-aged" />
-            <div className="flex items-center gap-2">
-              <LayoutDashboard className="w-4 h-4 text-gold" />
-              <span className="font-semibold text-sm">Admin Dashboard</span>
+    <div className="min-h-screen bg-vintage-beige">
+      {/* Header */}
+      <header className="bg-vintage-charcoal text-vintage-cream shadow-lg">
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <h1 className="font-baby text-2xl md:text-3xl font-bold">Admin Dashboard</h1>
+              <Link href="/" className="flex items-center gap-2 text-vintage-cream/80 hover:text-vintage-gold transition-colors text-sm">
+                <Home size={16} />
+                <span className="hidden md:inline">Back to Site</span>
+              </Link>
             </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <Link
-              href="/"
-              className="flex items-center gap-1.5 px-4 py-2 text-sm border border-aged/30 rounded-full text-aged hover:text-cream hover:border-cream/40 transition-all"
-            >
-              <Home className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">View Site</span>
-            </Link>
-            <Link
-              href="/admin/editor"
-              className="flex items-center gap-1.5 px-4 py-2 text-sm bg-accent text-cream rounded-full hover:bg-accent-hover transition-all hover:shadow-lg hover:shadow-accent/20 hover:scale-105 active:scale-95"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              New Story
-            </Link>
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-vintage-cream/80">{CONTACT_INFO.name}</span>
+            </div>
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-6 py-8">
-        {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* Navigation Tabs */}
+        <div className="flex gap-4 mb-8 border-b border-vintage-charcoal/20">
           {[
-            {
-              icon: FileText,
-              label: "Total Stories",
-              value: stats.total,
-              color: "text-ink",
-              bg: "bg-ink/5",
-            },
-            {
-              icon: Eye,
-              label: "Published",
-              value: stats.published,
-              color: "text-green-700",
-              bg: "bg-green-50",
-            },
-            {
-              icon: Clock,
-              label: "Drafts",
-              value: stats.drafts,
-              color: "text-amber-700",
-              bg: "bg-amber-50",
-            },
-            {
-              icon: Star,
-              label: "Featured",
-              value: stats.featured,
-              color: "text-accent",
-              bg: "bg-accent/5",
-            },
-          ].map((stat, i) => (
-            <motion.div
-              key={stat.label}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.1 }}
-              className="bg-cream border border-aged/20 rounded-xl p-5 hover:shadow-md transition-shadow"
+            { id: 'overview' as TabType, label: 'Overview', icon: BarChart },
+            { id: 'articles' as TabType, label: 'Articles', icon: FileText },
+            { id: 'settings' as TabType, label: 'Settings', icon: Settings },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-2 px-4 py-3 font-medium transition-all ${
+                activeTab === tab.id
+                  ? 'text-vintage-charcoal border-b-2 border-vintage-charcoal'
+                  : 'text-vintage-charcoal/60 hover:text-vintage-charcoal'
+              }`}
             >
-              <div className={`inline-flex p-2.5 rounded-lg ${stat.bg} mb-3`}>
-                <stat.icon className={`w-5 h-5 ${stat.color}`} />
-              </div>
-              <p className="font-baby text-2xl font-bold text-ink">
-                {stat.value}
-              </p>
-              <p className="text-xs text-ink-muted uppercase tracking-wider">
-                {stat.label}
-              </p>
-            </motion.div>
+              <tab.icon size={18} />
+              <span>{tab.label}</span>
+            </button>
           ))}
         </div>
 
-        {/* Search and Filter */}
-        <div className="flex flex-col sm:flex-row gap-3 mb-6">
-          <div className="relative flex-1">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-muted" />
-            <input
-              type="text"
-              placeholder="Search stories..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 bg-cream border border-aged/30 rounded-xl text-ink placeholder:text-ink-muted focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all"
-            />
-          </div>
-          <div className="relative">
-            <Filter className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-muted" />
-            <select
-              value={filterCategory}
-              onChange={(e) => setFilterCategory(e.target.value)}
-              className="pl-11 pr-8 py-3 bg-cream border border-aged/30 rounded-xl text-ink appearance-none cursor-pointer focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all"
-            >
-              <option value="All">All Categories</option>
-              <option value="WWI">WWI</option>
-              <option value="WWII">WWII</option>
-              <option value="League of Nations">League of Nations</option>
-              <option value="Independence">Independence</option>
-              <option value="The Commonwealth">The Commonwealth</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Articles list */}
-        {isLoading ? (
-          <div className="space-y-4">
-            {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="h-24 bg-cream border border-aged/20 rounded-xl skeleton"
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="space-y-3">
-            <AnimatePresence>
-              {filteredArticles?.map((article, i) => (
+        {/* Overview Tab */}
+        {activeTab === 'overview' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+          >
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              {stats.map((stat, index) => (
                 <motion.div
-                  key={article.id}
+                  key={stat.label}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, x: -100 }}
-                  transition={{ delay: i * 0.05 }}
-                  className="bg-cream border border-aged/20 rounded-xl p-5 hover:border-accent/30 hover:shadow-md transition-all duration-300 group"
+                  transition={{ duration: 0.4, delay: index * 0.1 }}
+                  className="bg-white rounded-lg shadow-md p-6"
                 >
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        {article.is_featured && (
-                          <Star className="w-4 h-4 text-gold fill-gold" />
-                        )}
-                        <h3 className="font-baby text-lg font-bold text-ink truncate">
-                          {article.title}
-                        </h3>
-                      </div>
-                      <div className="flex flex-wrap items-center gap-2 text-xs">
-                        <span className="px-2 py-0.5 bg-accent/10 text-accent font-semibold rounded-full">
-                          {article.category}
-                        </span>
-                        <span
-                          className={`px-2 py-0.5 rounded-full font-semibold ${
-                            article.published
-                              ? "bg-green-100 text-green-700"
-                              : "bg-amber-100 text-amber-700"
-                          }`}
-                        >
-                          {article.published ? "Published" : "Draft"}
-                        </span>
-                        <span className="text-ink-muted">
-                          {new Date(article.created_at).toLocaleDateString()}
-                        </span>
-                      </div>
+                  <div className="flex items-center gap-4">
+                    <div className={`${stat.color} p-3 rounded-lg text-white`}>
+                      <stat.icon size={24} />
                     </div>
-
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => handleToggleFeatured(article)}
-                        className="p-2 rounded-lg hover:bg-gold/10 text-ink-muted hover:text-gold transition-all tooltip-container"
-                        aria-label={
-                          article.is_featured
-                            ? "Remove featured"
-                            : "Set featured"
-                        }
-                      >
-                        {article.is_featured ? (
-                          <Star className="w-4 h-4 fill-current" />
-                        ) : (
-                          <StarOff className="w-4 h-4" />
-                        )}
-                        <span className="tooltip-text">
-                          {article.is_featured ? "Unfeature" : "Feature"}
-                        </span>
-                      </button>
-                      <button
-                        onClick={() => handleTogglePublish(article)}
-                        className="p-2 rounded-lg hover:bg-accent/10 text-ink-muted hover:text-accent transition-all tooltip-container"
-                        aria-label={
-                          article.published ? "Unpublish" : "Publish"
-                        }
-                      >
-                        {article.published ? (
-                          <EyeOff className="w-4 h-4" />
-                        ) : (
-                          <Eye className="w-4 h-4" />
-                        )}
-                        <span className="tooltip-text">
-                          {article.published ? "Unpublish" : "Publish"}
-                        </span>
-                      </button>
-                      <Link
-                        href={`/admin/editor/${article.id}`}
-                        className="p-2 rounded-lg hover:bg-accent/10 text-ink-muted hover:text-accent transition-all tooltip-container"
-                        aria-label="Edit article"
-                      >
-                        <Pencil className="w-4 h-4" />
-                        <span className="tooltip-text">Edit</span>
-                      </Link>
-                      <Link
-                        href={`/articles/${article.slug}`}
-                        target="_blank"
-                        className="p-2 rounded-lg hover:bg-accent/10 text-ink-muted hover:text-accent transition-all tooltip-container"
-                        aria-label="Preview article"
-                      >
-                        <BookOpen className="w-4 h-4" />
-                        <span className="tooltip-text">Preview</span>
-                      </Link>
-
-                      {deleteConfirm === article.id ? (
-                        <div className="flex items-center gap-1">
-                          <button
-                            onClick={() => handleDelete(article.id)}
-                            className="px-3 py-1.5 bg-red-600 text-cream text-xs rounded-lg hover:bg-red-700 transition-colors"
-                          >
-                            Confirm
-                          </button>
-                          <button
-                            onClick={() => setDeleteConfirm(null)}
-                            className="px-3 py-1.5 bg-cream border border-aged/30 text-ink text-xs rounded-lg hover:bg-parchment transition-colors"
-                          >
-                            Cancel
-                          </button>
-                        </div>
-                      ) : (
-                        <button
-                          onClick={() => setDeleteConfirm(article.id)}
-                          className="p-2 rounded-lg hover:bg-red-50 text-ink-muted hover:text-red-600 transition-all tooltip-container"
-                          aria-label="Delete article"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                          <span className="tooltip-text">Delete</span>
-                        </button>
-                      )}
+                    <div>
+                      <p className="text-vintage-charcoal/60 text-sm">{stat.label}</p>
+                      <p className="font-baby text-2xl font-bold text-vintage-charcoal">{stat.value}</p>
                     </div>
                   </div>
                 </motion.div>
               ))}
-            </AnimatePresence>
+            </div>
 
-            {filteredArticles?.length === 0 && (
-              <div className="text-center py-16">
-                <AlertCircle className="w-12 h-12 text-aged mx-auto mb-4" />
-                <h3 className="font-baby text-xl text-ink mb-2">
-                  No stories found
-                </h3>
-                <p className="text-ink-muted text-sm">
-                  Try adjusting your search or filters.
-                </p>
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h2 className="font-baby text-xl font-bold text-vintage-charcoal mb-4">
+                Welcome to The Professor's Archives Admin
+              </h2>
+              <p className="text-vintage-charcoal/70 mb-4">
+                This dashboard allows you to manage your historical articles and content. 
+                Use the tabs above to navigate between different sections.
+              </p>
+              <ul className="space-y-2 text-vintage-charcoal/70">
+                <li>• <strong>Overview:</strong> View statistics and quick insights</li>
+                <li>• <strong>Articles:</strong> Create, edit, and manage your articles</li>
+                <li>• <strong>Settings:</strong> Configure site settings and preferences</li>
+              </ul>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Articles Tab */}
+        {activeTab === 'articles' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+          >
+            {/* Create/Edit Form */}
+            {isEditing && (
+              <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="font-baby text-2xl font-bold text-vintage-charcoal">
+                    {currentArticle.id ? 'Edit Article' : 'Create New Article'}
+                  </h2>
+                  <button
+                    onClick={handleCancel}
+                    className="text-vintage-charcoal/60 hover:text-vintage-charcoal"
+                  >
+                    <X size={24} />
+                  </button>
+                </div>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-vintage-charcoal mb-2">
+                      Title
+                    </label>
+                    <input
+                      type="text"
+                      value={currentArticle.title || ''}
+                      onChange={(e) => setCurrentArticle({ ...currentArticle, title: e.target.value })}
+                      className="w-full px-4 py-2 border border-vintage-charcoal/20 rounded focus:outline-none focus:ring-2 focus:ring-vintage-charcoal"
+                      placeholder="Article title"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-vintage-charcoal mb-2">
+                      Category
+                    </label>
+                    <select
+                      value={currentArticle.category || ''}
+                      onChange={(e) => setCurrentArticle({ ...currentArticle, category: e.target.value })}
+                      className="w-full px-4 py-2 border border-vintage-charcoal/20 rounded focus:outline-none focus:ring-2 focus:ring-vintage-charcoal"
+                    >
+                      <option value="">Select category</option>
+                      <option value="WWI">WWI</option>
+                      <option value="WWII">WWII</option>
+                      <option value="League of Nations">League of Nations</option>
+                      <option value="Independence">Independence</option>
+                      <option value="The Commonwealth">The Commonwealth</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-vintage-charcoal mb-2">
+                      Excerpt
+                    </label>
+                    <textarea
+                      value={currentArticle.excerpt || ''}
+                      onChange={(e) => setCurrentArticle({ ...currentArticle, excerpt: e.target.value })}
+                      className="w-full px-4 py-2 border border-vintage-charcoal/20 rounded focus:outline-none focus:ring-2 focus:ring-vintage-charcoal h-24"
+                      placeholder="Brief excerpt or summary"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-vintage-charcoal mb-2">
+                      Author
+                    </label>
+                    <input
+                      type="text"
+                      value={currentArticle.author || 'The Professor'}
+                      onChange={(e) => setCurrentArticle({ ...currentArticle, author: e.target.value })}
+                      className="w-full px-4 py-2 border border-vintage-charcoal/20 rounded focus:outline-none focus:ring-2 focus:ring-vintage-charcoal"
+                      placeholder="Author name"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={currentArticle.featured || false}
+                      onChange={(e) => setCurrentArticle({ ...currentArticle, featured: e.target.checked })}
+                      className="w-4 h-4"
+                    />
+                    <label className="text-sm font-medium text-vintage-charcoal">
+                      Feature this article
+                    </label>
+                  </div>
+                  <div className="flex gap-4 pt-4">
+                    <button
+                      onClick={handleSave}
+                      className="flex items-center gap-2 px-6 py-2 bg-vintage-charcoal text-vintage-cream rounded hover:bg-vintage-darkBrown transition-colors"
+                    >
+                      <Save size={18} />
+                      Save Article
+                    </button>
+                    <button
+                      onClick={handleCancel}
+                      className="px-6 py-2 border border-vintage-charcoal/20 text-vintage-charcoal rounded hover:bg-vintage-charcoal/5 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
-          </div>
+
+            {/* Create Button */}
+            {!isEditing && (
+              <button
+                onClick={() => setIsEditing(true)}
+                className="flex items-center gap-2 px-6 py-3 bg-vintage-charcoal text-vintage-cream rounded-lg hover:bg-vintage-darkBrown transition-colors mb-6 shadow-md"
+              >
+                <Plus size={20} />
+                Create New Article
+              </button>
+            )}
+
+            {/* Articles List */}
+            <div className="space-y-4">
+              {articles.map((article, index) => (
+                <motion.div
+                  key={article.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.4, delay: index * 0.05 }}
+                  className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <span className="px-3 py-1 text-xs font-semibold text-vintage-cream bg-vintage-charcoal rounded-full">
+                          {article.category}
+                        </span>
+                        {article.featured && (
+                          <span className="px-3 py-1 text-xs font-semibold text-vintage-charcoal bg-vintage-gold rounded-full">
+                            Featured
+                          </span>
+                        )}
+                      </div>
+                      <h3 className="font-baby text-xl font-bold text-vintage-charcoal mb-2">
+                        {article.title}
+                      </h3>
+                      <p className="text-vintage-charcoal/70 text-sm mb-2">
+                        {article.excerpt}
+                      </p>
+                      <p className="text-vintage-charcoal/50 text-xs">
+                        By {article.author} • {new Date(article.date).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div className="flex gap-2 ml-4">
+                      <button
+                        onClick={() => handleEdit(article)}
+                        className="p-2 text-vintage-charcoal hover:bg-vintage-charcoal/5 rounded transition-colors"
+                      >
+                        <Edit size={18} />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(article.id)}
+                        className="p-2 text-red-600 hover:bg-red-50 rounded transition-colors"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
         )}
-      </main>
+
+        {/* Settings Tab */}
+        {activeTab === 'settings' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="bg-white rounded-lg shadow-md p-6"
+          >
+            <h2 className="font-baby text-2xl font-bold text-vintage-charcoal mb-6">
+              Settings
+            </h2>
+            <div className="space-y-6">
+              <div>
+                <h3 className="font-bold text-vintage-charcoal mb-3">Site Information</h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-vintage-charcoal mb-2">
+                      Site Title
+                    </label>
+                    <input
+                      type="text"
+                      defaultValue="The Professor's Archives"
+                      className="w-full px-4 py-2 border border-vintage-charcoal/20 rounded focus:outline-none focus:ring-2 focus:ring-vintage-charcoal"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-vintage-charcoal mb-2">
+                      Site Description
+                    </label>
+                    <textarea
+                      defaultValue="Global events. African perspectives. Explained vividly."
+                      className="w-full px-4 py-2 border border-vintage-charcoal/20 rounded focus:outline-none focus:ring-2 focus:ring-vintage-charcoal h-24"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="font-bold text-vintage-charcoal mb-3">Contact Information</h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-vintage-charcoal mb-2">
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      defaultValue={CONTACT_INFO.email}
+                      className="w-full px-4 py-2 border border-vintage-charcoal/20 rounded focus:outline-none focus:ring-2 focus:ring-vintage-charcoal"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-vintage-charcoal mb-2">
+                      Phone
+                    </label>
+                    <input
+                      type="tel"
+                      defaultValue={CONTACT_INFO.phoneDisplay}
+                      className="w-full px-4 py-2 border border-vintage-charcoal/20 rounded focus:outline-none focus:ring-2 focus:ring-vintage-charcoal"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <button className="px-6 py-3 bg-vintage-charcoal text-vintage-cream rounded-lg hover:bg-vintage-darkBrown transition-colors">
+                Save Settings
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </div>
     </div>
   );
 }
