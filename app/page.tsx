@@ -1,18 +1,24 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
+import Navbar from '@/components/navbar';
 import Hero from '@/components/Hero';
 import TopicFilters from '@/components/TopicFilters';
 import FeaturedStory from '@/components/FeaturedStory';
 import Timeline from '@/components/Timeline';
 import ArticleGrid from '@/components/ArticleGrid';
 import Footer from '@/components/Footer';
+import BackToTop from '@/components/back-to-top';
+import ReadingProgress from '@/components/reading-progress';
+import ShareModal from '@/components/share-modal';
 import { sampleArticles, timelineEvents } from '@/lib/data';
 import { CATEGORIES, type Category } from '@/lib/types';
 import type { Article as TypesArticle, TimelineEvent as TypesTimelineEvent } from '@/lib/types';
 
 export default function Home() {
   const [activeFilter, setActiveFilter] = useState<Category>('All');
+  const [shareArticle, setShareArticle] = useState<TypesArticle | null>(null);
+  const [bookmarkedSlugs, setBookmarkedSlugs] = useState<string[]>([]);
 
   // Convert sample articles to match the Article type from types.ts
   const convertedArticles: TypesArticle[] = sampleArticles.map(article => ({
@@ -66,21 +72,53 @@ export default function Home() {
     return nonFeatured.filter(article => article.category === activeFilter);
   }, [activeFilter]);
 
+  // Bookmark handler
+  const handleBookmark = useCallback((article: TypesArticle) => {
+    setBookmarkedSlugs(prev => {
+      if (prev.includes(article.slug)) {
+        return prev.filter(slug => slug !== article.slug);
+      }
+      return [...prev, article.slug];
+    });
+  }, []);
+
+  // Share handler
+  const handleShare = useCallback((article: TypesArticle) => {
+    setShareArticle(article);
+  }, []);
+
   return (
-    <main className="min-h-screen">
-      <Hero />
-      <TopicFilters 
-        activeCategory={activeFilter}
-        onCategoryChange={setActiveFilter}
-        categories={CATEGORIES}
-      />
-      <FeaturedStory article={featuredArticle} />
-      <Timeline events={convertedEvents} />
-      <ArticleGrid 
-        articles={filteredArticles}
-        activeCategory={activeFilter}
-      />
-      <Footer />
-    </main>
+    <>
+      <Navbar />
+      <ReadingProgress />
+      <main className="min-h-screen">
+        <Hero />
+        <TopicFilters 
+          activeCategory={activeFilter}
+          onCategoryChange={setActiveFilter}
+          categories={CATEGORIES}
+        />
+        <FeaturedStory article={featuredArticle} />
+        <Timeline events={convertedEvents} />
+        <ArticleGrid 
+          articles={filteredArticles}
+          activeCategory={activeFilter}
+          onShare={handleShare}
+          onBookmark={handleBookmark}
+          bookmarkedSlugs={bookmarkedSlugs}
+        />
+        <Footer />
+      </main>
+      <BackToTop />
+      {shareArticle && (
+        <ShareModal
+          isOpen={true}
+          onClose={() => setShareArticle(null)}
+          title={shareArticle.title}
+          url={`/articles/${shareArticle.slug}`}
+          excerpt={shareArticle.excerpt}
+        />
+      )}
+    </>
   );
 }
