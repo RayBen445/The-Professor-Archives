@@ -1,125 +1,161 @@
-'use client';
+"use client";
 
-import { motion } from 'framer-motion';
-import { Github, Linkedin, Mail, Phone } from 'lucide-react';
-import { SITE_INFO, CONTACT_INFO } from '@/lib/constants';
+import Link from "next/link";
+import { motion } from "framer-motion";
+import {
+  Feather,
+  Github,
+  Linkedin,
+  Globe,
+  Mail,
+  Phone,
+  ArrowUpRight,
+  Heart,
+} from "lucide-react";
+
+const footerLinks = {
+  Explore: [
+    { label: "All Stories", href: "/#articles" },
+    { label: "Timeline", href: "/#timeline" },
+    { label: "Document Archive", href: "/#documents" },
+    { label: "Discussions", href: "/#discussions" },
+  ],
+  Topics: [
+    { label: "World War I", href: "/?category=WWI" },
+    { label: "World War II", href: "/?category=WWII" },
+    { label: "Independence", href: "/?category=Independence" },
+    { label: "Nigeria", href: "/?category=Nigeria" },
+    { label: "Grammy History", href: "/?category=Grammy" },
+    { label: "Guinness Records", href: "/?category=Guinness+Records" },
+  ],
+  More: [
+    { label: "About", href: "/about" },
+    { label: "Contact", href: "/#contact" },
+    { label: "Admin", href: "/admin" },
+  ],
+};
+
+const socialLinks = [
+  {
+    icon: Linkedin,
+    href: "https://www.linkedin.com/in/heritage-oladoye",
+    label: "LinkedIn",
+  },
+  {
+    icon: Github,
+    href: "https://github.com/RayBen445",
+    label: "GitHub",
+  },
+  {
+    icon: Globe,
+    href: "https://v0-heritageoladoye-coolshotsystems.vercel.app/",
+    label: "Portfolio",
+  },
+  {
+    icon: Mail,
+    href: "mailto:oladoyeheritage445@gmail.com",
+    label: "Email",
+  },
+];
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-vintage-darkBrown text-vintage-cream py-12 px-4">
-      <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-          {/* About */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <div className="font-baby text-2xl font-bold mb-4">{SITE_INFO.title}</div>
-            <p className="text-vintage-cream/80 text-sm leading-relaxed">
-              {SITE_INFO.description}
-            </p>
-          </motion.div>
+    <footer className="bg-ink text-aged pt-20 pb-8 px-6 relative overflow-hidden">
+      {/* Background accent */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold/40 to-transparent" />
+      <div className="absolute top-0 right-[20%] w-64 h-64 bg-accent/5 rounded-full blur-3xl" />
 
-          {/* Quick Links */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-          >
-            <h4 className="font-baby text-xl font-bold mb-4">Quick Links</h4>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <a href="#" className="text-vintage-cream/80 hover:text-vintage-gold transition-colors">
-                  All Stories
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-vintage-cream/80 hover:text-vintage-gold transition-colors">
-                  Timeline
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-vintage-cream/80 hover:text-vintage-gold transition-colors">
-                  About The Professor
-                </a>
-              </li>
-              <li>
-                <a href="/admin" className="text-vintage-cream/80 hover:text-vintage-gold transition-colors">
-                  Admin Dashboard
-                </a>
-              </li>
-            </ul>
-          </motion.div>
-
-          {/* Contact */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            <h4 className="font-baby text-xl font-bold mb-4">Connect</h4>
-            <div className="space-y-3 text-sm">
-              <a 
-                href={`mailto:${CONTACT_INFO.email}`}
-                className="flex items-center gap-2 text-vintage-cream/80 hover:text-vintage-gold transition-colors"
-              >
-                <Mail size={16} />
-                <span>{CONTACT_INFO.email}</span>
-              </a>
-              <a 
-                href={`tel:${CONTACT_INFO.phone}`}
-                className="flex items-center gap-2 text-vintage-cream/80 hover:text-vintage-gold transition-colors"
-              >
-                <Phone size={16} />
-                <span>{CONTACT_INFO.phoneDisplay}</span>
-              </a>
-              <div className="flex gap-4 mt-4">
-                <motion.a
-                  href={CONTACT_INFO.github}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-vintage-cream/80 hover:text-vintage-gold transition-colors"
-                  whileHover={{ scale: 1.2, rotate: 5 }}
-                >
-                  <Github size={20} />
-                </motion.a>
-                <motion.a
-                  href={CONTACT_INFO.linkedin}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-vintage-cream/80 hover:text-vintage-gold transition-colors"
-                  whileHover={{ scale: 1.2, rotate: 5 }}
-                >
-                  <Linkedin size={20} />
-                </motion.a>
+      <div className="max-w-7xl mx-auto relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-12 mb-16">
+          {/* Brand */}
+          <div className="md:col-span-2">
+            <Link href="/" className="flex items-center gap-3 mb-6 group">
+              <motion.div whileHover={{ rotate: 15 }}>
+                <Feather className="w-8 h-8 text-gold" />
+              </motion.div>
+              <div>
+                <h3 className="font-baby text-2xl font-bold text-cream">
+                  {"The Professor's Archives"}
+                </h3>
+                <span className="text-xs uppercase tracking-[0.3em] text-aged-dark">
+                  Uncovering Hidden History
+                </span>
               </div>
+            </Link>
+            <p className="text-aged max-w-md leading-relaxed mb-6 text-pretty">
+              Dedicated to uncovering and preserving the untold stories of global
+              conflicts and African independence. Every story matters. Every
+              perspective counts.
+            </p>
+            <div className="flex gap-3">
+              {socialLinks.map((social) => (
+                <motion.a
+                  key={social.label}
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  whileHover={{ scale: 1.15, y: -3 }}
+                  whileTap={{ scale: 0.9 }}
+                  className="p-3 rounded-xl border border-aged/20 text-aged hover:text-gold hover:border-gold/40 hover:bg-gold/10 transition-all duration-300"
+                  aria-label={social.label}
+                >
+                  <social.icon className="w-4 h-4" />
+                </motion.a>
+              ))}
             </div>
-          </motion.div>
+          </div>
+
+          {/* Links */}
+          {Object.entries(footerLinks).map(([title, links]) => (
+            <div key={title}>
+              <h4 className="font-baby text-lg font-bold text-cream mb-5">
+                {title}
+              </h4>
+              <ul className="space-y-3">
+                {links.map((link) => (
+                  <li key={link.label}>
+                    <Link
+                      href={link.href}
+                      className="group flex items-center gap-1 text-aged hover:text-gold transition-colors duration-300 text-sm"
+                    >
+                      {link.label}
+                      <ArrowUpRight className="w-3 h-3 opacity-0 -translate-y-0.5 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300" />
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
 
-        {/* Bottom bar */}
-        <motion.div
-          className="border-t border-vintage-cream/20 pt-8 text-center text-sm text-vintage-cream/60"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-        >
-          <p>© {currentYear} {SITE_INFO.title}. All rights reserved.</p>
-          <p className="mt-2">
-            Built by{' '}
-            <a 
-              href={CONTACT_INFO.portfolio}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-vintage-gold hover:underline"
-            >
-              {CONTACT_INFO.name}
-            </a>
+        {/* Contact bar */}
+        <div className="flex flex-wrap items-center justify-center gap-6 py-6 border-t border-aged/10 mb-6">
+          <a
+            href="mailto:oladoyeheritage445@gmail.com"
+            className="flex items-center gap-2 text-aged hover:text-gold transition-colors text-sm"
+          >
+            <Mail className="w-3.5 h-3.5" />
+            oladoyeheritage445@gmail.com
+          </a>
+          <a
+            href="tel:+2348075614248"
+            className="flex items-center gap-2 text-aged hover:text-gold transition-colors text-sm"
+          >
+            <Phone className="w-3.5 h-3.5" />
+            +234 807 561 4248
+          </a>
+        </div>
+
+        {/* Copyright */}
+        <div className="text-center border-t border-aged/10 pt-6">
+          <p className="text-sm text-aged-dark flex items-center justify-center gap-1">
+            {currentYear} {"The Professor's Archives. Built with"}
+            <Heart className="w-3 h-3 text-accent inline" />
+            by Heritage Oladoye
           </p>
-        </motion.div>
+        </div>
       </div>
     </footer>
   );

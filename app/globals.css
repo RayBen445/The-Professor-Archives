@@ -6,12 +6,13 @@
 @tailwind utilities;
 
 :root {
-  --font-baby: 'Merriweather', serif; /* Placeholder for custom font */
+  --font-baby: 'Merriweather', serif;
+  --font-body: 'Crimson Text', serif;
 }
 
 body {
-  background-color: #F5F5DC;
-  color: #333333;
+  background-color: #FAF8F3;
+  color: #2C2C2C;
   font-family: 'Crimson Text', serif;
 }
 
@@ -19,14 +20,39 @@ body {
   font-family: var(--font-baby);
 }
 
-/* Custom scrollbar for timeline */
-.scrollbar-hide::-webkit-scrollbar {
+.font-crimson {
+  font-family: var(--font-body);
+}
+
+/* Custom scrollbar */
+.scrollbar-hide::-webkit-scrollbar,
+.scrollbar-none::-webkit-scrollbar {
   display: none;
 }
 
-.scrollbar-hide {
+.scrollbar-hide,
+.scrollbar-none {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(197, 165, 90, 0.3) transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: rgba(197, 165, 90, 0.3);
+  border-radius: 3px;
 }
 
 /* Vintage paper texture effect */
@@ -40,6 +66,55 @@ body {
       rgba(0,0,0,.02) 2px,
       rgba(0,0,0,.02) 4px
     );
+}
+
+/* Card hover effects */
+.card-hover {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+}
+
+.hover-glow {
+  transition: box-shadow 0.4s ease;
+}
+
+.hover-glow:hover {
+  box-shadow: 0 10px 40px rgba(139, 69, 19, 0.15);
+}
+
+/* Image zoom effect */
+.img-zoom {
+  overflow: hidden;
+}
+
+.img-zoom img {
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.img-zoom:hover img {
+  transform: scale(1.08);
+}
+
+/* Grain overlay effect */
+.grain-overlay::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E");
+  pointer-events: none;
+  mix-blend-mode: overlay;
+}
+
+/* Text utilities */
+.text-balance {
+  text-wrap: balance;
+}
+
+.text-pretty {
+  text-wrap: pretty;
 }
 
 /* Hover effects */

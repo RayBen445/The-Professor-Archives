@@ -8,7 +8,7 @@ import {
   Languages, FileText, Video, Users, Smartphone, Headphones,
 } from "lucide-react";
 import Navbar from "@/components/navbar";
-import Footer from "@/components/footer";
+import Footer from "@/components/page-footer";
 import BackToTop from "@/components/back-to-top";
 import ScrollReveal from "@/components/scroll-reveal";
 import Image from "next/image";
