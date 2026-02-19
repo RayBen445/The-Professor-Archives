@@ -34,14 +34,17 @@ export async function PUT(
   const sql = getDb();
   const { id } = await params;
   const body = await request.json();
-  const { title, slug, excerpt, content, category, image_url, is_featured, published, author } = body;
+  const { title, slug, excerpt, content, category, image_url, is_featured, published, author, published_date, country, region, read_time, tags } = body;
 
   try {
     const result = await sql`
       UPDATE articles 
       SET title = ${title}, slug = ${slug}, excerpt = ${excerpt}, content = ${content}, 
           category = ${category}, image_url = ${image_url || null}, is_featured = ${is_featured || false}, 
-          published = ${published || false}, author = ${author || "The Professor"}, updated_at = NOW()
+          published = ${published || false}, author = ${author || "The Professor"},
+          published_date = ${published_date || null}, country = ${country || null},
+          region = ${region || null}, read_time = ${read_time || null}, tags = ${tags || null},
+          updated_at = NOW()
       WHERE id = ${Number(id)}
       RETURNING *
     `;
