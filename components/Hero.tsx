@@ -10,13 +10,14 @@ export default function Hero() {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background Image */}
-      <div className="absolute inset-0">
+      <div className="absolute inset-0 w-full h-full">
         <Image
           src="/images/hero-bg.jpg"
           alt=""
           fill
           className="object-cover"
           priority
+          sizes="100vw"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-cream/70 via-cream/50 to-cream" />
         <div className="absolute inset-0 bg-gradient-to-r from-cream/60 via-transparent to-cream/60" />
