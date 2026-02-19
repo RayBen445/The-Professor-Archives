@@ -9,7 +9,7 @@ import {
   Volume2, VolumeX, Copy, Check, MapPin, Globe2, Tag,
 } from "lucide-react";
 import Navbar from "@/components/navbar";
-import Footer from "@/components/footer";
+import Footer from "@/components/page-footer";
 import BackToTop from "@/components/back-to-top";
 import ScrollReveal from "@/components/scroll-reveal";
 import ReadingProgress from "@/components/reading-progress";
